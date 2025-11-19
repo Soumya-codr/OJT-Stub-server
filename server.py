@@ -541,14 +541,20 @@ def start_config_watcher():
 # SERVER STARTUP
 # ============================================
 
-if __name__ == '__main__':
+def main():
+    """
+    Main entry point for the HTTP Stub Server
+    Can be called from command line or imported as a module
+    """
+    import sys
+    
     # Load initial configuration
     if not load_config():
         print('Failed to start server due to config error')
         exit(1)
     
-    # Get port from config (default: 5600)
-    PORT = config.get('port', 5600)
+    # Get port from command line argument, environment variable, or config (default: 5600)
+    PORT = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get('PORT', config.get('port', 5600)))
     
     # Display startup information
     print(f'🚀 HTTP Stub Server running on http://localhost:{PORT}')
@@ -570,3 +576,7 @@ if __name__ == '__main__':
     # debug=False: Production mode for clean output during demos
     # host='0.0.0.0': Allow network access (not just localhost)
     app.run(host='0.0.0.0', port=PORT, debug=False)
+
+
+if __name__ == '__main__':
+    main()
