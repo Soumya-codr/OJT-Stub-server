@@ -37,7 +37,19 @@ A configurable HTTP stub server for testing and development, built with Flask.
 
 ## ⚡ Quick Start
 
-### Option 1: Using Scripts (Windows)
+### Option 1: Install from Package (Recommended)
+```bash
+# Install the package
+pip install http-stub-server
+
+# Run the server (default port 5600)
+http-stub-server
+
+# Run on custom port
+http-stub-server 8080
+```
+
+### Option 2: Using Scripts (Windows)
 ```bash
 # Install dependencies
 scripts\install.bat
@@ -46,7 +58,7 @@ scripts\install.bat
 scripts\run.bat
 ```
 
-### Option 2: Manual
+### Option 3: Manual
 ```bash
 # Install dependencies
 pip install -r requirements.txt
@@ -55,7 +67,7 @@ pip install -r requirements.txt
 python server.py
 ```
 
-### Option 3: Test Everything
+### Option 4: Test Everything
 ```bash
 python scripts\test_api.py
 ```
@@ -64,8 +76,17 @@ python scripts\test_api.py
 
 ## 🌐 Server Info
 
-**Port:** 5600  
-**URL:** http://localhost:5600
+**Default Port:** 5600  
+**Default URL:** http://localhost:5600
+
+**Custom Port:**
+```bash
+# Run on port 8080
+http-stub-server 8080
+
+# Or set in config.json
+# Or use environment variable: PORT=8080
+```
 
 **Status Check:**
 ```bash
@@ -175,6 +196,18 @@ This is a learning project. Feel free to:
 
 ---
 
+## 📦 PyPI Package
+
+This project is packaged and ready for PyPI distribution!
+
+**Package Name:** `http-stub-server`  
+**Install Command:** `pip install http-stub-server` (after PyPI upload)  
+**Run Command:** `http-stub-server`
+
+See [PYPI_UPLOAD_GUIDE.md](PYPI_UPLOAD_GUIDE.md) for upload instructions.
+
+---
+
 ## 📄 License
 
 MIT License - Free to use for learning and development
@@ -183,10 +216,13 @@ MIT License - Free to use for learning and development
 
 ## 🆘 Need Help?
 
-1. Check [START_HERE.md](docs/START_HERE.md)
-2. Read [QUICK_START_HINDI.md](docs/QUICK_START_HINDI.md)
-3. Review [DEMO_CHECKLIST.md](docs/DEMO_CHECKLIST.md)
+- **Quick Start:** [docs/QUICK_START.md](docs/QUICK_START.md)
+- **PyPI Upload:** [docs/PYPI_UPLOAD_GUIDE.md](docs/PYPI_UPLOAD_GUIDE.md)
+- **Demo Prep:** [docs/DEMO_CHECKLIST.md](docs/DEMO_CHECKLIST.md)
+- **API Testing:** [docs/POSTMAN_TESTING_GUIDE.md](docs/POSTMAN_TESTING_GUIDE.md)
 
 ---
 
 **Made with ❤️ for learning Python backend development**
+
+**PyPI-ready package for professional distribution** 🚀
