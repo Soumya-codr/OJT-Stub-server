@@ -13,6 +13,11 @@ env/
 ENV/
 .venv
 
+# Build files
+build/
+dist/
+*.egg-info/
+
 # Logs
 requests.log
 *.log
