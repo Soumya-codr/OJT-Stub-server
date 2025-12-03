@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Stub Server - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .section h2 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        .btn-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .response {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+        }
+        .error {
+            color: #e74c3c;
+        }
+        .success {
+            color: #27ae60;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        .info strong {
+            color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 HTTP Stub Server</h1>
+        <p class="subtitle">E-commerce API Demo</p>
+
+        <div class="info">
+            <strong>📱 Mobile-Friendly Demo</strong><br>
+            Test all API endpoints directly from your phone!
+        </div>
+
+        <!-- Server Status -->
+        <div class="section">
+            <h2>🌐 Server Status</h2>
+            <button class="btn-primary" onclick="checkServer()">Check Server</button>
+            <div id="serverResponse" class="response" style="display:none;"></div>
+        </div>
+
+        <!-- Authentication -->
+        <div class="section">
+            <h2>🔐 Authentication</h2>
+            <button class="btn-success" onclick="register()">Register User</button>
+            <button class="btn-success" onclick="login()">Login User</button>
+            <div id="authResponse" class="response" style="display:none;"></div>
+        </div>
+
+        <!-- Categories -->
+        <div class="section">
+            <h2>📦 Browse Products</h2>
+            <button class="btn-info" onclick="getCategories()">Get Categories</button>
+            <button class="btn-info" onclick="getCategory()">Get Electronics</button>
+            <button class="btn-info" onclick="getProducts()">Get Laptops</button>
+            <div id="productResponse" class="response" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        let token = '';
+
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const responseDiv = document.getElementById(endpoint.includes('auth') ? 'authResponse' : 
+                                endpoint.includes('categories') ? 'productResponse' : 'serverResponse');
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = '<div class="loading">⏳ Loading...</div>';
+
+            try {
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+
+                if (token && endpoint !== '/register' && endpoint !== '/login') {
+                    options.headers['Authorization'] = token;
+                }
+
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+
+                const response = await fetch(API_URL + endpoint, options);
+                const data = await response.json();
+
+                responseDiv.innerHTML = `<div class="success">✅ Status: ${response.status}</div>\n${JSON.stringify(data, null, 2)}`;
+                
+                if (endpoint === '/login' && data.token) {
+                    token = data.token;
+                }
+            } catch (error) {
+                responseDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        function checkServer() {
+            apiCall('/');
+        }
+
+        function register() {
+            apiCall('/register', 'POST', {
+                name: 'Demo User',
+                email: 'demo@test.com',
+                password: 'pass123'
+            });
+        }
+
+        function login() {
+            apiCall('/login', 'POST', {
+                email: 'demo@test.com',
+                password: 'pass123'
+            });
+        }
+
+        function getCategories() {
+            apiCall('/categories');
+        }
+
+        function getCategory() {
+            apiCall('/categories/1');
+        }
+
+        function getProducts() {
+            apiCall('/categories/1/subcategories/1');
+        }
+    </script>
+</body>
+</html>
