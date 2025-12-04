@@ -8,7 +8,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="http-stub-server",
-    version="1.0.0",
+    version="1.0.1",
     author="Soumya Sagar",
     author_email="soumyasagar@example.com",
     description="A configurable HTTP stub server for e-commerce API testing and development",
