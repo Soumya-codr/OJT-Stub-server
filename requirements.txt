@@ -3,4 +3,4 @@
 
 Flask==3.0.0           # Web server framework - API banane ke liye
 Flask-CORS==4.0.0      # Cross-Origin requests allow karne ke liye (frontend se connect hone ke liye)
-watchdog==3.0.0        # File changes detect karne ke liye (config auto-reload)
+# watchdog==3.0.0      # Removed - Not needed in production (causes issues on some Python versions)

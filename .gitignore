@@ -30,3 +30,11 @@ requests.log
 .idea/
 *.swp
 *.swo
+
+# Private Documentation (OJT/Presentation files - not for public)
+docs/OJT_LOGBOOK_ENTRIES.md
+docs/OJT_LOGBOOK_FRONTEND.md
+docs/PPT_CONTENT.md
+docs/PRESENTATION_SCRIPT.md
+docs/SIMPLE_PRESENTATION_GUIDE.md
+docs/DEMO_CHECKLIST.md
