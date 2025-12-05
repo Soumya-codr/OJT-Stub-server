@@ -66,72 +66,7 @@
         "timestamp": "{{timestamp}}"
       }
     },
-    {
-      "path": "/cart/add/unauthorized",
-      "method": "POST",
-      "status": 401,
-      "delay": 100,
-      "response": {
-        "success": false,
-        "error": "Unauthorized",
-        "message": "You must be logged in to add items to cart. Please login or create an account first!",
-        "redirectTo": "/login",
-        "timestamp": "{{timestamp}}"
-      }
-    },
-    {
-      "path": "/cart/add",
-      "method": "POST",
-      "status": 200,
-      "delay": 500,
-      "response": {
-        "success": true,
-        "message": "Item added to cart successfully!",
-        "cartItem": {
-          "productId": "{{body.productId}}",
-          "productName": "{{body.productName}}",
-          "price": "{{body.price}}",
-          "quantity": "{{body.quantity}}",
-          "size": "{{body.size}}",
-          "color": "{{body.color}}"
-        },
-        "cartTotal": {
-          "items": 1,
-          "subtotal": "{{body.price}}",
-          "tax": 70,
-          "total": 770
-        },
-        "timestamp": "{{timestamp}}"
-      }
-    },
-    {
-      "path": "/cart",
-      "method": "GET",
-      "status": 200,
-      "delay": 300,
-      "response": {
-        "cartId": "{{randomId}}",
-        "items": [
-          {
-            "productId": 101,
-            "name": "Men's Winter Sweater",
-            "price": 700,
-            "quantity": 1,
-            "size": "L",
-            "color": "Black",
-            "image": "sweater1.jpg"
-          }
-        ],
-        "summary": {
-          "subtotal": 700,
-          "tax": 70,
-          "deliveryCharges": 0,
-          "discount": 0,
-          "total": 770
-        },
-        "timestamp": "{{timestamp}}"
-      }
-    },
+
     {
       "path": "/order/place/unauthorized",
       "method": "POST",
