@@ -4,3 +4,11 @@ include requirements.txt
 include config.json
 recursive-include docs *.md
 recursive-include scripts *.py *.bat
+
+# Exclude private documentation from package
+exclude docs/OJT_LOGBOOK_ENTRIES.md
+exclude docs/OJT_LOGBOOK_FRONTEND.md
+exclude docs/PPT_CONTENT.md
+exclude docs/PRESENTATION_SCRIPT.md
+exclude docs/SIMPLE_PRESENTATION_GUIDE.md
+exclude docs/DEMO_CHECKLIST.md
