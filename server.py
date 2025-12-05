@@ -32,6 +32,9 @@ CORS(app)  # Enable CORS for frontend API access
 CONFIG_PATH = 'config.json'
 LOG_PATH = 'logs/requests.log'
 
+# Ensure logs directory exists
+os.makedirs('logs', exist_ok=True)
+
 # Global configuration storage
 config = {}
 
