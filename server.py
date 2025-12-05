@@ -16,8 +16,15 @@ import random
 import string
 import os
 from threading import Thread
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+
+# Optional: Watchdog for auto-reload (not needed in production)
+try:
+    from watchdog.observers import Observer
+    from watchdog.events import FileSystemEventHandler
+    WATCHDOG_AVAILABLE = True
+except ImportError:
+    WATCHDOG_AVAILABLE = False
+    print("⚠️  Watchdog not available - auto-reload disabled")
 
 # Import category data (complete product catalog)
 from data import category_data
@@ -511,17 +518,18 @@ def universal_handler(path):
 # CONFIG FILE WATCHER (Auto-reload)
 # ============================================
 
-class ConfigFileHandler(FileSystemEventHandler):
-    """
-    Monitors configuration file for changes and triggers reload
-    Enables hot-reloading of endpoints without server restart
-    """
-    def on_modified(self, event):
-        if event.src_path.endswith('config.json'):
-            print('🔄 Config file changed, reloading...')
-            time.sleep(0.1)  # Brief delay to ensure file write is complete
-            load_config()
-            print('✅ Configuration reloaded - new endpoints will be used automatically')
+if WATCHDOG_AVAILABLE:
+    class ConfigFileHandler(FileSystemEventHandler):
+        """
+        Monitors configuration file for changes and triggers reload
+        Enables hot-reloading of endpoints without server restart
+        """
+        def on_modified(self, event):
+            if event.src_path.endswith('config.json'):
+                print('🔄 Config file changed, reloading...')
+                time.sleep(0.1)  # Brief delay to ensure file write is complete
+                load_config()
+                print('✅ Configuration reloaded - new endpoints will be used automatically')
 
 
 def start_config_watcher():
@@ -529,6 +537,11 @@ def start_config_watcher():
     Starts the configuration file watcher in a background thread
     Monitors current directory for config.json modifications
     """
+    if not WATCHDOG_AVAILABLE:
+        print('⚠️  Auto-reload: DISABLED (watchdog not installed)')
+        print('   Config changes will require server restart')
+        return
+    
     try:
         event_handler = ConfigFileHandler()
         observer = Observer()
