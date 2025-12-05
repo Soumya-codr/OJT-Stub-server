@@ -45,6 +45,9 @@ os.makedirs('logs', exist_ok=True)
 # Global configuration storage
 config = {}
 
+# In-memory cart storage (user_token -> cart_items)
+user_carts = {}
+
 # ============================================
 # HELPER FUNCTIONS
 # ============================================
@@ -267,6 +270,131 @@ def home():
         'documentation': 'See README_PYTHON.md for complete API documentation',
         'test': 'Run python test_api.py to test all endpoints'
     })
+
+# ============================================
+# REAL CART FUNCTIONALITY (In-Memory Storage)
+# ============================================
+
+@app.route('/cart/add', methods=['POST'])
+def add_to_cart_real():
+    """
+    Real cart implementation - stores items in memory
+    """
+    # Check authentication
+    auth_error = check_auth()
+    if auth_error:
+        return auth_error
+    
+    # Get token
+    token = request.headers.get('Authorization') or request.args.get('token')
+    
+    # Get cart item from request body
+    try:
+        item = request.get_json()
+        if not item:
+            return jsonify({'error': 'No item data provided'}), 400
+    except:
+        return jsonify({'error': 'Invalid JSON data'}), 400
+    
+    # Initialize cart for this user if doesn't exist
+    if token not in user_carts:
+        user_carts[token] = []
+    
+    # Add item to cart
+    user_carts[token].append({
+        'productId': item.get('productId'),
+        'productName': item.get('productName'),
+        'price': item.get('price'),
+        'quantity': item.get('quantity', 1),
+        'size': item.get('size', 'N/A'),
+        'color': item.get('color', 'N/A'),
+        'image': f"{item.get('productName', 'product').lower().replace(' ', '_')}.jpg"
+    })
+    
+    # Calculate cart total
+    subtotal = sum(item['price'] * item['quantity'] for item in user_carts[token])
+    tax = int(subtotal * 0.1)  # 10% tax
+    total = subtotal + tax
+    
+    # Simulate delay
+    time.sleep(0.5)
+    
+    return jsonify({
+        'success': True,
+        'message': 'Item added to cart successfully!',
+        'cartItem': user_carts[token][-1],
+        'cartTotal': {
+            'items': len(user_carts[token]),
+            'subtotal': subtotal,
+            'tax': tax,
+            'total': total
+        },
+        'timestamp': datetime.now().isoformat()
+    })
+
+
+@app.route('/cart', methods=['GET'])
+def view_cart_real():
+    """
+    Real cart view - shows actual added items
+    """
+    # Check authentication
+    auth_error = check_auth()
+    if auth_error:
+        return auth_error
+    
+    # Get token
+    token = request.headers.get('Authorization') or request.args.get('token')
+    
+    # Get user's cart
+    cart_items = user_carts.get(token, [])
+    
+    # Calculate summary
+    subtotal = sum(item['price'] * item['quantity'] for item in cart_items)
+    tax = int(subtotal * 0.1)
+    delivery = 0 if subtotal > 500 else 50
+    total = subtotal + tax + delivery
+    
+    # Simulate delay
+    time.sleep(0.3)
+    
+    return jsonify({
+        'cartId': generate_random_id(),
+        'items': cart_items,
+        'summary': {
+            'subtotal': subtotal,
+            'tax': tax,
+            'deliveryCharges': delivery,
+            'discount': 0,
+            'total': total
+        },
+        'timestamp': datetime.now().isoformat()
+    })
+
+
+@app.route('/cart/clear', methods=['POST'])
+def clear_cart():
+    """
+    Clear cart for user
+    """
+    # Check authentication
+    auth_error = check_auth()
+    if auth_error:
+        return auth_error
+    
+    # Get token
+    token = request.headers.get('Authorization') or request.args.get('token')
+    
+    # Clear cart
+    if token in user_carts:
+        user_carts[token] = []
+    
+    return jsonify({
+        'success': True,
+        'message': 'Cart cleared successfully!',
+        'timestamp': datetime.now().isoformat()
+    })
+
 
 # ============================================
 # DYNAMIC CATEGORY ROUTES (Authentication Required)
