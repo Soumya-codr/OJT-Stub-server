@@ -90,7 +90,6 @@ See [POSTMAN_TESTING_GUIDE.md](docs/POSTMAN_TESTING_GUIDE.md)
 - **Python 3.8+**
 - **Flask 3.0.0** - Web framework
 - **Flask-CORS 4.0.0** - Cross-origin support
-- **Watchdog 3.0.0** - File monitoring
 
 ---
 

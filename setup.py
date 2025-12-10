@@ -36,7 +36,6 @@ setup(
     install_requires=[
         "Flask>=3.0.0",
         "Flask-CORS>=4.0.0",
-        "watchdog>=3.0.0",
     ],
     entry_points={
         "console_scripts": [

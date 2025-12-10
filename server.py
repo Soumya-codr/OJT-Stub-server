@@ -15,16 +15,8 @@ from datetime import datetime
 import random
 import string
 import os
-from threading import Thread
 
-# Optional: Watchdog for auto-reload (not needed in production)
-try:
-    from watchdog.observers import Observer
-    from watchdog.events import FileSystemEventHandler
-    WATCHDOG_AVAILABLE = True
-except ImportError:
-    WATCHDOG_AVAILABLE = False
-    print("⚠️  Watchdog not available - auto-reload disabled")
+# All required imports for HTTP stub server
 
 # Import category data (complete product catalog)
 from data import category_data
@@ -515,42 +507,10 @@ def universal_handler(path):
 
 
 # ============================================
-# CONFIG FILE WATCHER (Auto-reload)
+# CONFIG MANAGEMENT
 # ============================================
-
-if WATCHDOG_AVAILABLE:
-    class ConfigFileHandler(FileSystemEventHandler):
-        """
-        Monitors configuration file for changes and triggers reload
-        Enables hot-reloading of endpoints without server restart
-        """
-        def on_modified(self, event):
-            if event.src_path.endswith('config.json'):
-                print('🔄 Config file changed, reloading...')
-                time.sleep(0.1)  # Brief delay to ensure file write is complete
-                load_config()
-                print('✅ Configuration reloaded - new endpoints will be used automatically')
-
-
-def start_config_watcher():
-    """
-    Starts the configuration file watcher in a background thread
-    Monitors current directory for config.json modifications
-    """
-    if not WATCHDOG_AVAILABLE:
-        print('⚠️  Auto-reload: DISABLED (watchdog not installed)')
-        print('   Config changes will require server restart')
-        return
-    
-    try:
-        event_handler = ConfigFileHandler()
-        observer = Observer()
-        observer.schedule(event_handler, path='.', recursive=False)
-        observer.start()
-        print('🔄 Auto-reload: ENABLED (config changes apply instantly)')
-    except Exception as e:
-        print(f'⚠️  Auto-reload: DISABLED (watchdog error: {str(e)})')
-        print('   Config changes will require server restart')
+# Note: Config changes require server restart
+# This keeps the server simple and production-ready
 
 
 # ============================================
@@ -584,9 +544,7 @@ def main():
             delay_info = f"[delay: {ep['delay']}ms]" if ep.get('delay') else ''
             print(f"   {ep['method']} {ep['path']} ({ep['status']}) {delay_info}")
     
-    # Start config file watcher in background thread
-    watcher_thread = Thread(target=start_config_watcher, daemon=True)
-    watcher_thread.start()
+    # Note: Config changes require server restart for simplicity
     
     # Start Flask development server
     # debug=False: Production mode for clean output during demos

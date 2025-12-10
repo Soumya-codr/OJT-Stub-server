@@ -79,20 +79,7 @@ from threading import Thread
 **Q: Threading kyun use ki?**
 **A:** Config file watcher ko background mein run karne ke liye, taaki main server block na ho.
 
-```python
-try:
-    from watchdog.observers import Observer
-    from watchdog.events import FileSystemEventHandler
-    WATCHDOG_AVAILABLE = True
-except ImportError:
-    WATCHDOG_AVAILABLE = False
-    print("⚠️  Watchdog not available - auto-reload disabled")
-```
-**Q: Try-except block kyun use kiya?**
-**A:** Watchdog optional dependency hai. Agar installed nahi hai toh error nahi aayega, bas auto-reload feature disable ho jayega.
-
-**Q: Watchdog kya karta hai?**
-**A:** File system changes monitor karta hai. Jab config.json change hoti hai, automatically reload kar deta hai bina server restart kiye.
+**Note:** Project ab sirf essential dependencies use karta hai production stability ke liye.
 
 ```python
 from data import category_data
@@ -601,40 +588,7 @@ return response, matched_endpoint['status']
 
 ### **Line 525-550: Config File Watcher**
 
-```python
-class ConfigFileHandler(FileSystemEventHandler):
-    def on_modified(self, event):
-        if event.src_path.endswith('config.json'):
-            print('🔄 Config file changed, reloading...')
-            time.sleep(0.1)
-            load_config()
-```
-**Q: FileSystemEventHandler kya hai?**
-**A:** Watchdog library ka class. File system events handle karne ke liye.
-
-**Q: on_modified method kab call hota hai?**
-**A:** Jab koi file modify ho.
-
-**Q: time.sleep(0.1) kyun?**
-**A:** File write complete hone ka wait karna. Partial file read na ho.
-
-```python
-def start_config_watcher():
-    if not WATCHDOG_AVAILABLE:
-        print('⚠️  Auto-reload: DISABLED')
-        return
-    
-    try:
-        event_handler = ConfigFileHandler()
-        observer = Observer()
-        observer.schedule(event_handler, path='.', recursive=False)
-        observer.start()
-```
-**Q: recursive=False ka matlab?**
-**A:** Sirf current directory monitor karo, subdirectories nahi.
-
-**Q: observer.start() kya karta hai?**
-**A:** Background thread start karta hai jo file changes monitor karta hai.
+**Note:** Configuration management ab simple hai - config changes ke liye server restart karna padta hai production stability ke liye.
 
 ---
 

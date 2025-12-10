@@ -242,7 +242,6 @@ Authorization: your_token_here
 ```txt
 Flask==3.0.0
 Flask-CORS==4.0.0
-watchdog==3.0.0
 ```
 
 **Agar file nahi hai toh banao:**
