@@ -499,19 +499,7 @@ def universal_handler(path):
 
 #### **6.1 ConfigFileHandler Class**
 
-```python
-class ConfigFileHandler(FileSystemEventHandler):
-    def on_modified(self, event):
-        if event.src_path.endswith('config.json'):
-            print('🔄 Config file changed, reloading...')
-            time.sleep(0.1)  # Wait for write completion
-            load_config()
-            print('✅ Configuration reloaded')
-```
-
-**Note:** Configuration management has been simplified - config changes require server restart for production stability.
-
----
+# deleted the watchdog wala part
 
 ### **Section 7: Server Startup**
 

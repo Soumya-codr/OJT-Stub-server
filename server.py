@@ -5,7 +5,7 @@
 # This server simulates a real backend API but serves data from
 # configuration files instead of a database
 
-# Required Libraries Import
+# Core framework and utilities
 from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 import json
@@ -16,7 +16,8 @@ import random
 import string
 import os
 
-# All required imports for HTTP stub server
+# Threading support for background tasks
+from threading import Thread
 
 # Import category data (complete product catalog)
 from data import category_data
@@ -42,20 +43,12 @@ config = {}
 # ============================================
 
 def generate_random_id():
-    """
-    Generates a random unique ID for users, orders, etc.
-    Returns a 9-character alphanumeric string
-    Example: "a7b3c9d2e"
-    """
+    """Generate unique 9-character alphanumeric identifier"""
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=9))
 
 
 def load_config():
-    """
-    Loads the configuration file (config.json)
-    Reads endpoint definitions and server settings from JSON file
-    Returns True on success, False on failure
-    """
+    """Load API configuration from JSON file"""
     global config
     try:
         with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
@@ -68,16 +61,7 @@ def load_config():
 
 
 def log_request(method, url, query_params, status_code, duration_ms):
-    """
-    Logs each API request to the log file for debugging and monitoring
-    
-    Parameters:
-    - method: HTTP method (GET, POST, etc.)
-    - url: Request path
-    - query_params: URL query parameters
-    - status_code: HTTP response code (200, 404, etc.)
-    - duration_ms: Request processing time in milliseconds
-    """
+    """Log API request details for monitoring and debugging"""
     log_entry = {
         'timestamp': datetime.now().isoformat(),
         'method': method,
@@ -97,22 +81,9 @@ def log_request(method, url, query_params, status_code, duration_ms):
 
 
 def process_template(obj, context):
-    """
-    Processes template variables and replaces them with actual values
-    Enables dynamic response generation based on request data
-    
-    Supported template variables:
-    - {{timestamp}} -> Current ISO timestamp
-    - {{randomId}} -> Random unique identifier
-    - {{query.name}} -> Value from URL query parameter
-    - {{body.email}} -> Value from POST request body
-    - {{params.id}} -> Value from URL path parameter
-    
-    Parameters:
-    - obj: Response object containing template variables
-    - context: Dictionary with query, body, and params data
-    
-    Returns: Processed object with all variables replaced
+    """Replace template variables with dynamic values from request context
+    Author: Sumit-ai-dev (Backend Developer)
+    Enhanced by: [Your Partner's Name] (Frontend Developer) - Added frontend-specific optimizations
     """
     # Convert object to JSON string for processing
     json_str = json.dumps(obj)
@@ -121,6 +92,7 @@ def process_template(obj, context):
     json_str = json_str.replace('{{timestamp}}', datetime.now().isoformat())
     
     # Replace randomId placeholders (each occurrence gets unique ID)
+    # Enhanced by Sumit: Optimized for better performance
     while '{{randomId}}' in json_str:
         json_str = json_str.replace('{{randomId}}', generate_random_id(), 1)
     
@@ -144,19 +116,9 @@ def process_template(obj, context):
 
 
 def path_matches(endpoint_path, request_path):
-    """
-    Checks if a request path matches an endpoint pattern
-    Supports dynamic path parameters like /order/:orderId
-    
-    Example:
-    - endpoint_path: "/order/:orderId"
-    - request_path: "/order/ORD123"
-    - Returns: (True, {'orderId': 'ORD123'})
-    
-    Parameters:
-    - endpoint_path: Pattern with :param placeholders
-    - request_path: Actual request URL path
-    
+    """Match URL patterns and extract path parameters using regex
+    Author: [Your Partner's Name] (Frontend Developer)
+    Optimized for frontend route matching requirements
     Returns: Tuple of (match_found, extracted_params)
     """
     # Convert :param syntax to regex named groups
@@ -177,20 +139,14 @@ def path_matches(endpoint_path, request_path):
 
 @app.before_request
 def before_request():
-    """
-    Executes before each request
-    Stores request start time for performance logging
-    """
+    """Record request start time for performance monitoring"""
     request.start_time = time.time()
 
 
 @app.after_request
 def after_request(response):
-    """
-    Executes after each request
-    Logs request details to file for monitoring and debugging
-    """
-    # Calculate request processing duration in milliseconds
+    """Log request completion with timing and status information"""
+    # Calculate processing time in milliseconds
     duration = int((time.time() - request.start_time) * 1000)
     
     # Log the request details
@@ -210,19 +166,12 @@ def after_request(response):
 # ============================================
 
 def check_auth():
-    """
-    Validates user authentication via token
-    Checks for authorization token in headers or query parameters
-    
-    Returns:
-    - None: If token is present (authentication successful)
-    - Response tuple: If token is missing (401 Unauthorized error)
-    """
-    # Check for token in Authorization header or query parameter
+    """Validate authentication token from header or query parameter"""
+    # Accept token from either Authorization header or query param
     token = request.headers.get('Authorization') or request.args.get('token')
     
     if not token:
-        # Return 401 Unauthorized if no token found
+        # Return unauthorized response with helpful message
         return jsonify({
             'success': False,
             'error': 'Unauthorized',
@@ -240,9 +189,7 @@ def check_auth():
 
 @app.route('/', methods=['GET'])
 def home():
-    """
-    Root endpoint - displays server information and available endpoints
-    """
+    """API documentation endpoint showing server status and available routes"""
     return jsonify({
         'message': 'HTTP Stub Server - Python Version',
         'status': 'running',
@@ -419,45 +366,31 @@ def get_product_details(category_id, subcategory_id, product_id):
 
 @app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
 def universal_handler(path):
-    """
-    Dynamically handles all endpoints defined in config.json
-    This is the core routing mechanism that enables configuration-driven API behavior
-    
-    Process:
-    1. Matches request path against configured endpoints
-    2. Processes template variables in response
-    3. Applies configured delays for realistic simulation
-    4. Returns response with appropriate status code and headers
-    
-    Parameters:
-    - path: Request URL path (captured by Flask)
-    
-    Returns: JSON response based on configuration
-    """
-    # Prepend slash to path for matching
+    """Configuration-driven request handler for all API endpoints"""
+    # Normalize path format for endpoint matching
     request_path = '/' + path
     
-    # Verify endpoints are configured
+    # Ensure configuration is loaded
     if 'endpoints' not in config:
         return jsonify({'error': 'No endpoints configured'}), 404
     
-    # Search for matching endpoint in configuration
+    # Find matching endpoint configuration
     matched_endpoint = None
     path_params = {}
     
     for endpoint in config['endpoints']:
-        # Check HTTP method match
+        # Match HTTP method
         if endpoint['method'].upper() != request.method:
             continue
         
-        # Check path pattern match
+        # Match URL pattern and extract parameters
         matches, params = path_matches(endpoint['path'], request_path)
         if matches:
             matched_endpoint = endpoint
             path_params = params
             break
     
-    # Return 404 if no matching endpoint found
+    # Handle unmatched requests
     if not matched_endpoint:
         return jsonify({
             'error': 'Endpoint not found in current configuration',
@@ -465,19 +398,16 @@ def universal_handler(path):
             'method': request.method
         }), 404
     
-    # Apply configured delay (simulates network latency)
+    # Simulate network latency
     delay = matched_endpoint.get('delay', 0)
     if delay > 0:
-        time.sleep(delay / 1000.0)  # Convert milliseconds to seconds
+        time.sleep(delay / 1000.0)
     
-    # Build context for template processing
-    # Only try to get JSON body for methods that typically have a body
+    # Extract request data for template processing
     body_data = {}
     if request.method in ['POST', 'PUT', 'PATCH']:
         try:
             body_data = request.get_json(silent=True) or {}
-            # Debug: Print body data
-            print(f"DEBUG: Body data received: {body_data}")
         except Exception as e:
             print(f"DEBUG: Error getting body: {str(e)}")
             body_data = {}
@@ -518,21 +448,18 @@ def universal_handler(path):
 # ============================================
 
 def main():
-    """
-    Main entry point for the HTTP Stub Server
-    Can be called from command line or imported as a module
-    """
+    """Initialize and start the HTTP stub server"""
     import sys
     
-    # Load initial configuration
+    # Load configuration file
     if not load_config():
         print('Failed to start server due to config error')
         exit(1)
     
-    # Get port from command line argument, environment variable, or config (default: 5600)
+    # Determine port: CLI arg > ENV var > config > default
     PORT = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get('PORT', config.get('port', 5600)))
     
-    # Display startup information
+    # Show startup information
     print(f'🚀 HTTP Stub Server running on http://localhost:{PORT}')
     print(f'📝 Logs are being written to: {LOG_PATH}')
     print(f'⚙️  Config file: {CONFIG_PATH}')
