@@ -6,7 +6,7 @@ A configurable mock API server for e-commerce testing and development, built wit
 
 ---
 
-## ⚡ Quick Start
+## ⚡ Quick Start  
 
 ### Installation
 ```bash
